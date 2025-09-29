@@ -12,6 +12,7 @@
 /* Layout */
 .assay-layout{
   display:flex;
+  align-items: center;
   background:var(--bg);
 }
 
@@ -86,7 +87,6 @@
 .assay-card{
   min-width: 90%;
   margin-bottom: 67px;
-  margin-top: auto;
   margin-left: auto;
   background:#fff;
   border:1px solid var(--stroke);

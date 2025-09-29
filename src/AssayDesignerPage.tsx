@@ -1,9 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./assay.css";
+// @ts-ignore
+import NET from "vanta/dist/vanta.net.min";
+import * as THREE from "three";
 
 export default function AssayDesignerPage() {
+  const vantaRef = useRef<HTMLDivElement>(null);
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
+
+  useEffect(() => {
+    if (!vantaEffect) {
+      const effect = NET({
+        el: vantaRef.current,
+        THREE, // pass in three.js
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.0,
+        minWidth: 200.0,
+        scale: 1.0,
+        scaleMobile: 1.0,
+        color: 0x41afaf,
+        backgroundColor: 0xffffff,
+        points: 20.0,
+        maxDistance: 40.0,
+        spacing: 19.0,
+      });
+      setVantaEffect(effect);
+    }
+    return () => {
+      if (vantaEffect) vantaEffect.destroy();
+    };
+  }, [vantaEffect]);
+
   return (
-    <div className="assay-layout">
+    <div className="assay-layout" ref={vantaRef}>
       <Sidebar />
       <main className="assay-main">
         <h1 className="assay-title">ASSAY DESIGNER</h1>
@@ -20,14 +51,22 @@ function Sidebar() {
         <div className="brand-row">
           <span className="brand-letter">C A S P E R</span>
         </div>
-        <small className="brand-sub">Integrated RPA + CRISPR-Cas12 Assay Designer</small>
+        <small className="brand-sub">
+          Integrated RPA + CRISPR-Cas12 Assay Designer
+        </small>
       </div>
 
       <nav className="side-nav">
-        <div className="side-group"><span className="side-heading">Projects</span></div>
+        <div className="side-group">
+          <span className="side-heading">Projects</span>
+        </div>
         <div className="side-divider" />
-        <div className="side-group"><span className="side-heading">Designs</span></div>
-        <div className="side-group"><span className="side-heading">Rankings</span></div>
+        <div className="side-group">
+          <span className="side-heading">Designs</span>
+        </div>
+        <div className="side-group">
+          <span className="side-heading">Rankings</span>
+        </div>
       </nav>
     </aside>
   );
@@ -35,7 +74,6 @@ function Sidebar() {
 
 /* --------- Main Card --------- */
 function AssayDesignerCard() {
-
   const [primerMin, setPrimerMin] = useState<string>("28");
   const [primerMax, setPrimerMax] = useState<string>("36");
 
@@ -56,10 +94,14 @@ function AssayDesignerCard() {
     // you can navigate or post these values
     // example: console.log them for now
     console.log({
-      primerMin, primerMax,
-      crrnaMin, crrnaMax,
-      ampMin, ampMax,
-      gcMin, gcMax,
+      primerMin,
+      primerMax,
+      crrnaMin,
+      crrnaMax,
+      ampMin,
+      ampMax,
+      gcMin,
+      gcMax,
       targets,
       background,
       numSets,
@@ -70,7 +112,6 @@ function AssayDesignerCard() {
 
   return (
     <section className="assay-card">
-
       <div className="grid">
         {/* Primer Length */}
         <FieldPair
@@ -81,14 +122,16 @@ function AssayDesignerCard() {
             value: primerMin,
             onChange: (e) => setPrimerMin(e.target.value),
             placeholder: "28",
-            min: 10, max: 80,
+            min: 10,
+            max: 80,
           }}
           rightProps={{
             type: "number",
             value: primerMax,
             onChange: (e) => setPrimerMax(e.target.value),
             placeholder: "36",
-            min: 10, max: 80,
+            min: 10,
+            max: 80,
           }}
         />
 
@@ -101,14 +144,16 @@ function AssayDesignerCard() {
             value: crrnaMin,
             onChange: (e) => setCrrnaMin(e.target.value),
             placeholder: "20",
-            min: 10, max: 40,
+            min: 10,
+            max: 40,
           }}
           rightProps={{
             type: "number",
             value: crrnaMax,
             onChange: (e) => setCrrnaMax(e.target.value),
             placeholder: "24",
-            min: 10, max: 40,
+            min: 10,
+            max: 40,
           }}
         />
 
@@ -121,14 +166,16 @@ function AssayDesignerCard() {
             value: ampMin,
             onChange: (e) => setAmpMin(e.target.value),
             placeholder: "100",
-            min: 40, max: 1000,
+            min: 40,
+            max: 1000,
           }}
           rightProps={{
             type: "number",
             value: ampMax,
             onChange: (e) => setAmpMax(e.target.value),
             placeholder: "200",
-            min: 40, max: 1000,
+            min: 40,
+            max: 1000,
           }}
         />
 
@@ -141,14 +188,16 @@ function AssayDesignerCard() {
             value: gcMin,
             onChange: (e) => setGcMin(e.target.value),
             placeholder: "30",
-            min: 0, max: 100,
+            min: 0,
+            max: 100,
           }}
           rightProps={{
             type: "number",
             value: gcMax,
             onChange: (e) => setGcMax(e.target.value),
             placeholder: "70",
-            min: 0, max: 100,
+            min: 0,
+            max: 100,
           }}
         />
       </div>
@@ -161,7 +210,13 @@ function AssayDesignerCard() {
           value={targets}
           onChange={(e) => setTargets(e.target.value)}
         />
-        <button className="icon-btn" aria-label="Upload sequences" onClick={() => { /* hook up file picker later */}}>
+        <button
+          className="icon-btn"
+          aria-label="Upload sequences"
+          onClick={() => {
+            /* hook up file picker later */
+          }}
+        >
           <UploadIcon />
         </button>
       </div>
@@ -174,7 +229,13 @@ function AssayDesignerCard() {
           value={background}
           onChange={(e) => setBackground(e.target.value)}
         />
-        <button className="icon-btn" aria-label="Upload background" onClick={() => { /* file picker later */}}>
+        <button
+          className="icon-btn"
+          aria-label="Upload background"
+          onClick={() => {
+            /* file picker later */
+          }}
+        >
           <UploadIcon />
         </button>
       </div>
@@ -224,9 +285,25 @@ function FieldPair(props: {
 function UploadIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
-      <path d="M12 16V7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-      <path d="M8.5 10.5 12 7l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" fill="none" />
-      <path d="M4 17v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1" stroke="currentColor" strokeWidth="1.7" fill="none" />
+      <path
+        d="M12 16V7"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M8.5 10.5 12 7l3.5 3.5"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M4 17v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        fill="none"
+      />
     </svg>
   );
 }
