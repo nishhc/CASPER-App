@@ -39,7 +39,7 @@ html,
     letter-spacing: 0.6em;
     margin-left: 3.5vw;
     user-select: none;
-    margin-bottom: -0.5vw; /* push away from edge */
+    margin-bottom: -1vw; /* push away from edge */
 
   }
 
