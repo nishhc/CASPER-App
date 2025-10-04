@@ -40,8 +40,8 @@ export default function Home() {
         <p className="subtitle">Integrated RPA + CRISPR-Cas12 Assay Designer</p>
         <div className="buttons">
           <a href="#about" className="pill">About</a>
-          <a href="/assay" className="pill">Generate</a>
-          <a href="#rank" className="pill">Rank Custom</a>
+          <a href="/assay" className="pill">Generate Set</a>
+          <a href="#rank" className="pill">Evaluate Custom Set</a>
         </div>
       </div>
     </section>
