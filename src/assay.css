@@ -9,25 +9,54 @@
    min-height: 100vh; 
 }
 
-/* Layout */
 .assay-layout{
   display:flex;
   align-items: center;
   background:var(--bg);
 }
 
-/* Sidebar */
+.sidebar-container{
+  display: flex;
+  height: 100vh;
+}
+
 .assay-sidebar{
   min-width:300px;
   padding:20px 18px;
   border-right:1px solid var(--stroke);
   background:#fff;
-  position:sticky;
-  top:0;
-  height:100vh;
   box-shadow: inset -1px 0 0 var(--stroke);
   border-top-right-radius:22px;
   border-bottom-right-radius:22px;
+  z-index: 9999;
+}
+
+
+.hide-sidebar-btn-container {
+  position: fixed;
+  margin-left: 330px;
+  margin-bottom: 12px;
+  bottom: 0;
+}
+
+.show-sidebar-btn-container {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+}
+
+.sidebar-btn {
+  right: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 2px solid var(--stroke);
+  background: #fff;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .brand{
@@ -69,25 +98,39 @@
 .assay-main{
   flex:1;
   padding-right:28px;
-    display: flex;
+  padding-left: 28px;
+  display: flex;
   flex-direction: column;
+}
+@media (max-width: 800px){
+  .assay-main{    padding-right:6px;
+  padding-left: 6px;
+}
+
 }
 
 .assay-title{
-  margin:4px 0;
+  margin: -20px 20px;
   text-align:right;
+  border:1px solid var(--stroke);
   margin-top: 30px;
-  margin-bottom: 30px;
+  margin-left: auto;
+  padding:12px 24px 24px;
   letter-spacing:.8rem;
   font-weight:600;
+  width: auto;
   font-size:clamp(28px,5.2vw,56px);
+  background-color: white;
+  border-radius:var(--radius);
+}
+@media (max-width: 800px){
+  .assay-title{  margin: -20px 0px;   font-size:clamp(24px,5.2vw,56px); }
 }
 
 /* Card */
 .assay-card{
   min-width: 90%;
   margin-bottom: 67px;
-  margin-left: auto;
   background:#fff;
   border:1px solid var(--stroke);
   border-radius:var(--radius);
@@ -117,27 +160,42 @@
 .pair{
   display:flex; align-items:right; gap:10px;
 }
-.pill-input{
+.pill-input {
   width: 30vw;
-  height:40px;
-  border-radius:999px;
-  border:1px solid #ddd;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
   background: #f9fafb;
-  color:#9ca3af;
-  text-align:center;
+  /* 1. Set the color for the ACTUAL TYPED TEXT to be dark */
+  color: #111827; /* A dark black/grey for user input */
+  text-align: center;
   padding-left: 1vw;
-  outline:none;
-  min-width: 175px
-}
-.pill-input:disabled{ opacity:1; } /* keep the look */
-@media (min-width: 800px){
-  .pill-input{ width: 10vw; }
-
+  outline: none;
+  min-width: 175px;
 }
 
-.to{ color:#6b7280; font-size:14px; }
+/* 2. Target ONLY the placeholder and make it grey */
+.pill-input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
 
-/* Target row */
+.pill-input:focus::placeholder {
+  color: transparent;
+}
+
+.pill-input:disabled {
+  opacity: 1;
+}
+
+@media (min-width: 800px) {
+  .pill-input {
+    width: 10vw;
+  }
+}
+
+.to{ color:#6b7280; font-size:14px; transform:translateY(25%); }
+
 .target-row{
   display:flex;
   align-items:right;

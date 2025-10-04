@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./assay.css";
 // @ts-ignore
 import NET from "vanta/dist/vanta.net.min";
 import * as THREE from "three";
+import { motion } from "framer-motion";
+
 
 export default function AssayDesignerPage() {
   const vantaRef = useRef<HTMLDivElement>(null);
@@ -12,19 +15,17 @@ export default function AssayDesignerPage() {
     if (!vantaEffect) {
       const effect = NET({
         el: vantaRef.current,
-        THREE, // pass in three.js
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.0,
-        minWidth: 200.0,
-        scale: 1.0,
-        scaleMobile: 1.0,
-        color: 0x41afaf,
-        backgroundColor: 0xffffff,
-        points: 20.0,
-        maxDistance: 40.0,
-        spacing: 19.0,
+        THREE,
+  mouseControls: false,
+  minHeight: 200.00,
+  minWidth: 200.00,
+  scale: 1,
+  scaleMobile: 1.00,
+  color: 0x64d2ff,
+  backgroundColor: 0xffffff,
+  points: 5.00,
+  maxDistance: 19.00,
+  spacing:40.00
       });
       setVantaEffect(effect);
     }
@@ -45,46 +46,72 @@ export default function AssayDesignerPage() {
 }
 
 function Sidebar() {
-  return (
-    <aside className="assay-sidebar">
-      <div className="brand">
-        <div className="brand-row">
-          <span className="brand-letter">C A S P E R</span>
-        </div>
-        <small className="brand-sub">
-          Integrated RPA + CRISPR-Cas12 Assay Designer
-        </small>
-      </div>
+  const [isVisible, setIsVisible] = useState(false);
 
-      <nav className="side-nav">
-        <div className="side-group">
-          <span className="side-heading">Projects</span>
+  return (
+    <div className="sidebar-container">
+      <motion.aside
+        className="assay-sidebar"
+        initial={{ x: -350 }}
+        animate={{ x: isVisible ? 0 : -350 }} 
+        transition={{ duration: 0.1, ease: "easeInOut" }}
+        style={{position: isVisible ? 'sticky' : 'absolute'}}
+      >
+        <div className="brand">
+          <div className="brand-row">
+            <span className="brand-letter">C A S P E R</span>
+          </div>
+          <small className="brand-sub">
+            Integrated RPA + CRISPR-Cas12 Assay Designer
+          </small>
         </div>
-        <div className="side-divider" />
-        <div className="side-group">
-          <span className="side-heading">Designs</span>
+
+        <nav className="side-nav">
+          <div className="side-group">
+            <span className="side-heading">Projects</span>
+          </div>
+          <div className="side-divider" />
+          <div className="side-group">
+            <span className="side-heading">Designs</span>
+          </div>
+          <div className="side-group">
+            <span className="side-heading">Rankings</span>
+          </div>
+        </nav>
+
+      {isVisible && (
+          <div className="hide-sidebar-btn-container">
+            <button className="sidebar-btn" onClick={() => setIsVisible(false)}>
+              <ChevronLeft size={20} />
+            </button>
+          </div>
+        )}
+      </motion.aside>
+
+      {!isVisible && (
+        <div className="show-sidebar-btn-container">
+          <button className="sidebar-btn" onClick={() => setIsVisible(true)}>
+            <ChevronRight size={20} />
+          </button>
         </div>
-        <div className="side-group">
-          <span className="side-heading">Rankings</span>
-        </div>
-      </nav>
-    </aside>
+      )}
+    </div>
   );
 }
 
-/* --------- Main Card --------- */
+
 function AssayDesignerCard() {
-  const [primerMin, setPrimerMin] = useState<string>("28");
-  const [primerMax, setPrimerMax] = useState<string>("36");
+  const [primerMin, setPrimerMin] = useState<string>("");
+  const [primerMax, setPrimerMax] = useState<string>("");
 
-  const [crrnaMin, setCrrnaMin] = useState<string>("20");
-  const [crrnaMax, setCrrnaMax] = useState<string>("24");
+  const [crrnaMin, setCrrnaMin] = useState<string>("");
+  const [crrnaMax, setCrrnaMax] = useState<string>("");
 
-  const [ampMin, setAmpMin] = useState<string>("100");
-  const [ampMax, setAmpMax] = useState<string>("200");
+  const [ampMin, setAmpMin] = useState<string>("");
+  const [ampMax, setAmpMax] = useState<string>("");
 
-  const [gcMin, setGcMin] = useState<string>("30");
-  const [gcMax, setGcMax] = useState<string>("70");
+  const [gcMin, setGcMin] = useState<string>("");
+  const [gcMax, setGcMax] = useState<string>("");
 
   const [targets, setTargets] = useState<string>("");
   const [background, setBackground] = useState<string>("");
@@ -145,7 +172,6 @@ function AssayDesignerCard() {
   return (
     <section className="assay-card">
       <div className="grid">
-        {/* Primer Length */}
         <FieldPair
           required
           label="Primer Length"
@@ -167,7 +193,6 @@ function AssayDesignerCard() {
           }}
         />
 
-        {/* crRNA Length */}
         <FieldPair
           required
           label="crRNA Length"
@@ -253,7 +278,7 @@ function AssayDesignerCard() {
         </button>
       </div>
 
-      {/* NEW: Genome / Background Sequence */}
+      {/* NEW: Genome / Background Sequence maybe delte later */}
       <div className="target-row">
         <input
           className="target-input"
