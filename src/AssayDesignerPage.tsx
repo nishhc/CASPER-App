@@ -90,25 +90,57 @@ function AssayDesignerCard() {
   const [background, setBackground] = useState<string>("");
   const [numSets, setNumSets] = useState<string>("");
 
-  const handleGenerate = () => {
-    // you can navigate or post these values
-    // example: console.log them for now
-    console.log({
-      primerMin,
-      primerMax,
-      crrnaMin,
-      crrnaMax,
-      ampMin,
-      ampMax,
-      gcMin,
-      gcMax,
-      targets,
-      background,
-      numSets,
-    });
-    // If you’re using React Router, navigate here (e.g., to /assay/results)
-    // navigate("/assay/results", { state: { ...values }});
+  const handleGenerate = async () => {
+
+    const config = {
+    min_primer_length: Number(primerMin),
+    max_primer_length: Number(primerMax),
+    min_amplicon_length: Number(ampMin),
+    max_amplicon_length: Number(ampMax),
+    min_crrna_length: Number(crrnaMin),
+    max_crrna_length: Number(crrnaMax),
+    min_gc_content: Number(gcMin),
+    max_gc_content: Number(gcMax),
+    num_sets: Number(numSets),
+    generation: true,
   };
+
+  const formData = new FormData();
+  formData.append("config", JSON.stringify(config));
+
+  if (targets) {
+    const fastaBlob = new Blob([targets], { type: "text/plain" });
+    formData.append("target_fasta", fastaBlob, "input.fasta");
+  }
+
+  if (background) {
+    const csvBlob = new Blob([background], { type: "text/plain" });
+    formData.append("input_csv", csvBlob, "input.csv");
+  }
+
+  try {
+    const res = await fetch("http://localhost:8000/process", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error("Backend error: " + res.status);
+
+    const blob = await res.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ranked.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    console.log("Download started");
+  } catch (err) {
+    console.error("Error generating assay:", err);
+  }
+};
+
 
   return (
     <section className="assay-card">
