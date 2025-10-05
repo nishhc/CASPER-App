@@ -21,6 +21,7 @@ export default function AssayDesignerPage() {
   };
 
   const handleSuccessfulRequest = () => {
+    setAssayData([]); 
     setIsGenerated(true);
   };
   
@@ -150,15 +151,15 @@ const handleGenerate = async () => {
   var updates = ""
   onRequestSucceed();
   const config = {
-    min_primer_length: Number(primerMin) <= 0 ? 28 : Number(primerMin),
-    max_primer_length: Number(primerMax) <= 0 ? 36 : Number(primerMax),
-    min_amplicon_length: Number(ampMin) <= 0 ? 100 : Number(ampMin),
-    max_amplicon_length: Number(ampMax) <=  0 ? 200 : Number(ampMax),
-    min_crrna_length: Number(crrnaMin)  <= 0 ? 20 : Number(crrnaMin),
-    max_crrna_length: Number(crrnaMax) <= 0 ? 24 : Number(crrnaMax),
-    min_gc_content: Number(gcMin) <=  0 ? 30 : Number(gcMin),
-    max_gc_content: Number(gcMax) >= 100 ? 70 : Number(gcMax),
-    num_sets: Number(numSets) <= 0 ? 10 : Number(numSets),
+    min_primer_length: Number(primerMin) <= 0 ? Number(28) : Number(primerMin),
+    max_primer_length: Number(primerMax) <= 0 ? Number(36) : Number(primerMax),
+    min_amplicon_length: Number(ampMin) <= 0 ? Number(100) : Number(ampMin),
+    max_amplicon_length: Number(ampMax) <=  0 ? Number(200) : Number(ampMax),
+    min_crrna_length: Number(crrnaMin)  <= 0 ? Number(20) : Number(crrnaMin),
+    max_crrna_length: Number(crrnaMax) <= 0 ? Number(24) : Number(crrnaMax),
+    min_gc_content: Number(gcMin) <=  0 ? Number(30) : Number(gcMin),
+    max_gc_content: Number(gcMax) >= 100 || Number(gcMax) <= 0 ? Number(70) : Number(gcMax),
+    num_sets: Number(numSets) <= 0 ? Number(10) : Number(numSets),
     generation: true,
   };
 
