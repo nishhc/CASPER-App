@@ -37,7 +37,7 @@ export default function AssayRankerPage() {
         el: vantaRef.current,
         THREE,
         mouseControls: false,
-        minHeight: 1000.0,
+        minHeight: 800.0,
         minWidth: 200.0,
         scale: 1,
         scaleMobile: 1.0,

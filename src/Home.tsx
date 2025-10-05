@@ -39,7 +39,7 @@ export default function Home() {
         <h1 className="title">CASPER</h1>
         <p className="subtitle">Integrated RPA + CRISPR-Cas12 Assay Designer</p>
         <div className="buttons">
-          <a href="#about" className="pill">About</a>
+          <a href="https://2025.igem.wiki/lambert-ga/software" target="_blank" className="pill">About</a>
           <a href="/assay" className="pill">Generate Set</a>
           <a href="/rank" className="pill">Evaluate Custom Set</a>
         </div>
