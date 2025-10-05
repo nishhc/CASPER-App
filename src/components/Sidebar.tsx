@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, Trophy, Hammer } from "lucide-react";
+import "./sidebar.css";
+import { NavLink } from 'react-router-dom';
 
 type SidebarProps = {
   isVisible: boolean;
@@ -36,6 +38,7 @@ function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
           </div>
         </nav>
 
+        {SidebarIcons()}
         {isVisible && (
           <div className="hide-sidebar-btn-container">
             <button className="sidebar-btn" onClick={() => setIsVisible(false)}>
@@ -57,3 +60,21 @@ function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
 }
 
 export default Sidebar;
+
+
+
+function SidebarIcons() {
+  return (
+    <div className="pg-icons" >
+      <NavLink to="/" className="pageLink">
+        <Home className="pageIcon"  size={20} />
+      </NavLink>
+      <NavLink to="/assay" className="pageLink">
+        <Hammer className="pageIcon" size={20} />
+      </NavLink>
+      <NavLink to="/rank" className="pageLink">
+        <Trophy className="pageIcon" size={20} />
+      </NavLink>
+    </div>
+  );
+}

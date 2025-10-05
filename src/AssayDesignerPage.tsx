@@ -37,7 +37,7 @@ export default function AssayDesignerPage() {
         el: vantaRef.current,
         THREE,
         mouseControls: false,
-        minHeight: "100%",
+        minHeight: 1000.0,
         minWidth: 1000.0,
         scale: 1,
         scaleMobile: 1.0,

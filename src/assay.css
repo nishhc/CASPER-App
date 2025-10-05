@@ -15,54 +15,6 @@
   background: var(--bg);
 }
 
-.sidebar-container {
-  position: fixed;
-  top: 0;
-  left: 0;         
-  height: 100vh;
-  z-index: 10;
-  overflow-y: hidden;
-}
-
-.assay-sidebar {
-  min-width: 300px;
-  width: 300px;
-  height: 96vh;
-  padding: 20px 18px;
-  border-right: 1px solid var(--stroke);
-  background: #fff;
-  box-shadow: inset -1px 0 0 var(--stroke);
-  border-top-right-radius: 22px;
-  border-bottom-right-radius: 22px;
-}
-
-.hide-sidebar-btn-container {
-  position: fixed;
-  margin-left: 330px;
-  margin-bottom: 12px;
-  bottom: 0;
-}
-
-.show-sidebar-btn-container {
-  position: fixed;
-  bottom: 12px;
-  left: 12px;
-}
-
-.sidebar-btn {
-  right: -20px;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: 2px solid var(--stroke);
-  background: #fff;
-  color: #6b7280;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
 .brand {
   display: flex;
   flex-direction: column;
