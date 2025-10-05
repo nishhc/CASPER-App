@@ -41,7 +41,7 @@ export default function Home() {
         <div className="buttons">
           <a href="#about" className="pill">About</a>
           <a href="/assay" className="pill">Generate Set</a>
-          <a href="#rank" className="pill">Evaluate Custom Set</a>
+          <a href="/rank" className="pill">Evaluate Custom Set</a>
         </div>
       </div>
     </section>
