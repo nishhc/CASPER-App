@@ -102,10 +102,14 @@
   padding: 4px 0;
 }
 
+
+
+
 /* Main */
 .assay-main {
   flex: 1;
   padding-right: 28px;
+  max-width: 96%;
   padding-left: 28px;
   display: flex;
   flex-direction: column;
@@ -195,15 +199,13 @@
   border-radius: 999px;
   border: 1px solid #ddd;
   background: #f9fafb;
-  /* 1. Set the color for the ACTUAL TYPED TEXT to be dark */
-  color: #111827; /* A dark black/grey for user input */
+  color: #111827;
   text-align: center;
   padding-left: 1vw;
   outline: none;
   min-width: 175px;
 }
 
-/* 2. Target ONLY the placeholder and make it grey */
 .pill-input::placeholder {
   color: #9ca3af;
   opacity: 1;
@@ -237,24 +239,42 @@
 }
 .target-input {
   flex: 1;
-  height: 44px;
-  border-radius: 999px;
+  height: 50px;
+  min-height: 50px;
+  border-radius: 20px;
   border: 1px solid #ddd;
+  white-space: pre-wrap;     
+  overflow-wrap: break-word; 
+  word-break: break-all;     
+  text-align: left;
   background: #f9fafb;
-  color: #9ca3af;
-  padding: 0 14px;
+  color: #000000;
+  padding: 14px 14px;
   outline: none;
+
 }
-.icon-btn {
+
+.target-input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+  font-family: "DM Sans";
+
+}
+
+.upload-icon-btn {
   width: 44px;
   height: 44px;
   border-radius: 999px;
   border: 1px solid #ddd;
   background: #fff;
-  color: #6b7280;
+  background: linear-gradient(#4e9eb9, #0078a1);
+  color: #FFFFFF;
 }
-.icon-btn:disabled {
-  opacity: 1;
+
+.upload-icon-btn:hover {
+  cursor: pointer;
+  box-shadow: 0px 0px 10px rgba(17, 176, 255, 0.5);
+
 }
 
 /* Footer controls */
@@ -278,11 +298,13 @@
   height: 44px;
   min-width: 140px;
   border-radius: 999px;
-  border: 1px solid #cfd3da;
+  border: none;
   color: #ffffff;
   font-weight: 600;
   background: linear-gradient(#4e9eb9, #0078a1);
 }
-.generate-btn:disabled {
-  opacity: 1;
+.generate-btn:hover {
+  cursor: pointer;
+  box-shadow: 0px 0px 10px rgba(17, 176, 255, 0.5);
+
 }

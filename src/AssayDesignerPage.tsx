@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, type ChangeEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./assay.css";
 import "./output.css";
@@ -143,21 +143,26 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
   const [targets, setTargets] = useState<string>("");
   const [numSets, setNumSets] = useState<string>("");
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
 const handleGenerate = async () => {
   var updates = ""
   onRequestSucceed();
   const config = {
-    min_primer_length: Number(primerMin),
-    max_primer_length: Number(primerMax),
-    min_amplicon_length: Number(ampMin),
-    max_amplicon_length: Number(ampMax),
-    min_crrna_length: Number(crrnaMin),
-    max_crrna_length: Number(crrnaMax),
-    min_gc_content: Number(gcMin),
-    max_gc_content: Number(gcMax),
-    num_sets: Number(numSets),
+    min_primer_length: Number(primerMin) <= 0 ? 28 : Number(primerMin),
+    max_primer_length: Number(primerMax) <= 0 ? 36 : Number(primerMax),
+    min_amplicon_length: Number(ampMin) <= 0 ? 100 : Number(ampMin),
+    max_amplicon_length: Number(ampMax) <=  0 ? 200 : Number(ampMax),
+    min_crrna_length: Number(crrnaMin)  <= 0 ? 20 : Number(crrnaMin),
+    max_crrna_length: Number(crrnaMax) <= 0 ? 24 : Number(crrnaMax),
+    min_gc_content: Number(gcMin) <=  0 ? 30 : Number(gcMin),
+    max_gc_content: Number(gcMax) >= 100 ? 70 : Number(gcMax),
+    num_sets: Number(numSets) <= 0 ? 10 : Number(numSets),
     generation: true,
   };
+
+  
 
   const formData = new FormData();
   formData.append("config", JSON.stringify(config));
@@ -212,6 +217,30 @@ const handleGenerate = async () => {
     console.error("Error generating assay:", err);
   }
 };
+ // 2. Create a handler to trigger the hidden file input
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // 3. Create a handler to read the file content once selected
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]; // Use optional chaining for safety
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const fileContents = e.target?.result as string;
+      // Update the state with the file's content
+      setTargets(fileContents);
+    };
+    reader.onerror = () => {
+      console.error("Error reading file:", reader.error);
+      alert("Failed to read the file.");
+    };
+    reader.readAsText(file);
+  };
 
 
   return (
@@ -306,21 +335,26 @@ const handleGenerate = async () => {
 
       {/* Target Sequences */}
       <div className="target-row">
-        <input
+        <textarea
           className="target-input"
           placeholder="Paste target sequences (FASTA or plain)…"
           value={targets}
           onChange={(e) => setTargets(e.target.value)}
         />
         <button
-          className="icon-btn"
+          className="upload-icon-btn"
           aria-label="Upload sequences"
-          onClick={() => {
-            /* hook up file picker later */
-          }}
+          onClick={handleUploadClick}
         >
           <UploadIcon />
         </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+          accept=".fasta,.fa,.fna,.ffn,.faa,.frn" // Accept common FASTA extensions
+        />
       </div>
 
       {/* Footer controls */}
