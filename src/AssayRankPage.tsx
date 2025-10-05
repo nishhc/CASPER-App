@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef, type ChangeEvent } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef, type ChangeEvent } from "react";
 import "./assay.css";
 import "./output.css";
 // @ts-ignore
 import NET from "vanta/dist/vanta.net.min";
+import Sidebar from "./components/Sidebar";
 import * as THREE from "three";
-import { motion } from "framer-motion";
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import UploadIcon from "./components/UploadIcon";
+import OutputCard from "./components/OutputCard";
+import FieldPair from "./components/FieldPair";
+import { downloadCSV } from "./utils";
 
-export default function AssayDesignerPage() {
+export default function AssayRankerPage() {
   const [isGenerated, setIsGenerated] = useState(false);
   const vantaRef = useRef<HTMLDivElement>(null);
   const [vantaEffect, setVantaEffect] = useState<any>(null);
@@ -27,7 +29,7 @@ export default function AssayDesignerPage() {
 
   const handleLiveReceived = (stream: string) => {
     setLiveStream(stream);
-  }
+  };
 
   useEffect(() => {
     if (!vantaEffect) {
@@ -35,15 +37,15 @@ export default function AssayDesignerPage() {
         el: vantaRef.current,
         THREE,
         mouseControls: false,
-        minHeight: 1000.00,
-        minWidth: 200.00,
+        minHeight: 1000.0,
+        minWidth: 200.0,
         scale: 1,
-        scaleMobile: 1.00,
+        scaleMobile: 1.0,
         color: 0x64d2ff,
         backgroundColor: 0xffffff,
-        points: 5.00,
-        maxDistance: 19.00,
-        spacing: 40.00
+        points: 5.0,
+        maxDistance: 19.0,
+        spacing: 40.0,
       });
       setVantaEffect(effect);
     }
@@ -54,92 +56,54 @@ export default function AssayDesignerPage() {
 
   return (
     <div className="assay-layout" ref={vantaRef}>
-      <Sidebar isVisible={isSidebarVisible} setIsVisible={setIsSidebarVisible} />
-      <main className="assay-main" style={{ marginLeft: isSidebarVisible ? "330px" : "0" }}>
+      <Sidebar
+        isVisible={isSidebarVisible}
+        setIsVisible={setIsSidebarVisible}
+      />
+      <main
+        className="assay-main"
+        style={{ marginLeft: isSidebarVisible ? "330px" : "0" }}
+      >
         <h1 className="assay-title">ASSAY EVALUATION</h1>
-        <AssayDesignerCard onRequestSucceed={handleSuccessfulRequest} onDataReceived={handleDataReceived} onLiveReceived={handleLiveReceived} />
-        <OutputCard isVisible={isGenerated} isSidebarVisible={isSidebarVisible} data={assayData} liveStream={liveStream} />
+        <AssayRankerCard
+          onRequestSucceed={handleSuccessfulRequest}
+          onDataReceived={handleDataReceived}
+          onLiveReceived={handleLiveReceived}
+        />
+        <OutputCard
+          isVisible={isGenerated}
+          isSidebarVisible={isSidebarVisible}
+          data={assayData}
+          liveStream={liveStream}
+        />
       </main>
     </div>
   );
 }
 
-type SidebarProps = {
-  isVisible: boolean;
-  setIsVisible: (visible: boolean) => void;
-};
-
-function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
-
-  return (
-    <div className="sidebar-container">
-      <motion.aside
-        className="assay-sidebar"
-        initial={{ x: -350 }}
-        animate={{ x: isVisible ? 0 : -350 }}
-        transition={{ duration: 0.1, ease: "easeInOut" }}
-      >
-        <div className="brand">
-          <div className="brand-row">
-            <span className="brand-letter">C A S P E R</span>
-          </div>
-          <small className="brand-sub">
-            Integrated RPA + CRISPR-Cas12 Assay Designer
-          </small>
-        </div>
-
-        <nav className="side-nav">
-          <div className="side-group">
-            <span className="side-heading">Projects</span>
-          </div>
-          <div className="side-divider" />
-          <div className="side-group">
-            <span className="side-heading">Designs</span>
-          </div>
-          <div className="side-group">
-            <span className="side-heading">Rankings</span>
-          </div>
-        </nav>
-
-        {isVisible && (
-          <div className="hide-sidebar-btn-container">
-            <button className="sidebar-btn" onClick={() => setIsVisible(false)}>
-              <ChevronLeft size={20} />
-            </button>
-          </div>
-        )}
-      </motion.aside>
-
-      {!isVisible && (
-        <div className="show-sidebar-btn-container">
-          <button className="sidebar-btn" onClick={() => setIsVisible(true)}>
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-type AssayDesignerCardProps = {
+type AssayRankerCardProps = {
   onDataReceived: (data: any[]) => void;
   onRequestSucceed: () => void;
   onLiveReceived: (data: string) => void;
 };
 
-function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }: AssayDesignerCardProps) {
+function AssayRankerCard({
+  onDataReceived,
+  onRequestSucceed,
+  onLiveReceived,
+}: AssayRankerCardProps) {
   const [gcMin, setGcMin] = useState<string>("");
   const [gcMax, setGcMax] = useState<string>("");
 
   const [targets, setTargets] = useState<string>("");
   const [numSets, setNumSets] = useState<string>("");
-  
+
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const csvFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async () => {
-    var updates = ""
+    var updates = "";
     onRequestSucceed();
     const config = {
       min_primer_length: 28,
@@ -149,8 +113,14 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
       min_crrna_length: 20,
       max_crrna_length: 24,
       min_gc_content: Number(gcMin) <= 0 ? Number(30) : Number(gcMin),
-      max_gc_content: Number(gcMax) >= 100 || Number(gcMax) <= 0 ? Number(70) : Number(gcMax),
-    num_sets: Number(numSets) <= 0 ? Number(10) : (Number(numSets) >= 1000 ? 1000 : Number(numSets)),
+      max_gc_content:
+        Number(gcMax) >= 100 || Number(gcMax) <= 0 ? Number(70) : Number(gcMax),
+      num_sets:
+        Number(numSets) <= 0
+          ? Number(10)
+          : Number(numSets) >= 1000
+          ? 1000
+          : Number(numSets),
       generation: false,
     };
 
@@ -161,9 +131,9 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
       const fastaBlob = new Blob([targets], { type: "text/plain" });
       formData.append("target_fasta", fastaBlob, "input.fasta");
     }
-    
+
     if (csvFile) {
-        formData.append("input_csv", csvFile, csvFile.name);
+      formData.append("input_csv", csvFile, csvFile.name);
     }
 
     try {
@@ -185,7 +155,7 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
+        const lines = buffer.split("\n");
         buffer = lines.pop() || "";
 
         for (const line of lines) {
@@ -194,7 +164,7 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
             const update = JSON.parse(line);
 
             console.log("Status:", update.status);
-            updates += update.status + "\n"
+            updates += update.status + "\n";
             onLiveReceived(updates);
 
             if (update.status === "complete" && update.data) {
@@ -203,7 +173,12 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
               downloadCSV(update.data.csvData);
             }
           } catch (e) {
-            console.error("Error parsing streamed JSON line:", e, "Line:", line);
+            console.error(
+              "Error parsing streamed JSON line:",
+              e,
+              "Line:",
+              line
+            );
           }
         }
       }
@@ -219,7 +194,7 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
   const handleCsvUploadClick = () => {
     csvFileInputRef.current?.click();
   };
-  
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -241,7 +216,7 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
   const handleCsvFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-        setCsvFile(file);
+      setCsvFile(file);
     }
   };
 
@@ -288,32 +263,36 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           accept=".fasta,.fa,.fna,.ffn,.faa,.frn"
         />
       </div>
-      
+
       <div className="target-row">
         <button
           className="csv-upload-icon-btn"
           aria-label="Upload CSV"
-          onClick={handleCsvUploadClick}  
-          style={{fontWeight: 'bold'}}
+          onClick={handleCsvUploadClick}
+          style={{ fontWeight: "bold" }}
         >
           Upload Formatted CSV
         </button>
-        {csvFile && <div className="filename"><span>{csvFile.name}</span></div>}
+        {csvFile && (
+          <div className="filename">
+            <span>{csvFile.name}</span>
+          </div>
+        )}
         <input
           type="file"
-          ref={csvFileInputRef} 
-          onChange={handleCsvFileChange} 
-          style={{ display: 'none' }}
+          ref={csvFileInputRef}
+          onChange={handleCsvFileChange}
+          style={{ display: "none" }}
           accept=".csv"
         />
       </div>
 
       <div className="footer-controls">
-        <span style={{marginTop: "12px"}}>Number of Sets (Max 1000): </span>
+        <span style={{ marginTop: "12px" }}>Number of Sets (Max 1000): </span>
         <input
           className="sets-input"
           placeholder="10"
@@ -327,145 +306,5 @@ function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:
         </button>
       </div>
     </section>
-  );
-}
-
-type OutputCardProps = {
-  isVisible: boolean
-  isSidebarVisible: boolean;
-  data: any[];
-  liveStream: string;
-};
-
-function OutputCard({ isVisible, isSidebarVisible, data, liveStream }: OutputCardProps) {
-  const [resizeKey, setResizeKey] = useState(0);
-
-  useEffect(() => {
-    let timeoutId: number;
-
-    const handleResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(() => {
-        setResizeKey(prevKey => prevKey + 1);
-      }, 200);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isSidebarVisible]);
-
-  if (!isVisible) {
-    return null;
-  }
-  
-  if (data.length === 0) {
-    return ((<section className="output-card">
-      <h2 className="output-title">Output</h2>
-      <div className="data-stream">
-        <pre className="live-stream-text">{liveStream}</pre>
-      </div>
-    </section>));
-  }
-
-  const columns: GridColDef[] = [
-    { field: 'rank', headerName: 'Rank', width: 80 },
-    { field: 'forward_primer', headerName: 'Forward Primer', flex: 1 },
-    { field: 'backward_primer', headerName: 'Backward Primer', flex: 1 },
-    { field: 'amplicon', headerName: 'Amplicon', flex: 1 },
-    { field: 'crrna', headerName: 'crRNA', flex: 1 },
-  ];
-
-  const rows = data.map((item, index) => ({
-    id: index,
-    rank: index + 1,
-    forward_primer: item.forward_primer,
-    backward_primer: item.backward_primer,
-    amplicon: item.amplicon,
-    crrna: item.crrna,
-  }));
-
-  return (
-    <section className="output-card">
-      <h2 className="output-title">Output</h2>
-      <div key={resizeKey} style={{ height: "80%", width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          disableColumnResize={true}
-          pageSizeOptions={[4, 10, 20]}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 4, page: 0 },
-            },
-          }}
-        />
-      </div>
-    </section>
-  );
-}
-
-function downloadCSV(csvString: string, fileName: string = "ranked.csv") {
-  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-
-  const url = window.URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", fileName);
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  window.URL.revokeObjectURL(url);
-}
-
-type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
-
-function FieldPair(props: {
-  label: string;
-  required?: boolean;
-  leftProps?: InputProps;
-  rightProps?: InputProps;
-}) {
-  const { label, required, leftProps, rightProps } = props;
-  return (
-    <div className="field-pair">
-      <label className="field-label">
-        {required && <span className="req">*</span>} {label}
-      </label>
-      <div className="pair">
-        <input className="pill-input" {...leftProps} />
-        <span className="to">to</span>
-        <input className="pill-input" {...rightProps} />
-      </div>
-    </div>
-  );
-}
-
-function UploadIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
-      <path
-        d="M12 16V7"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-      <path
-        d="M8.5 10.5 12 7l3.5 3.5"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M4 17v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        fill="none"
-      />
-    </svg>
   );
 }
