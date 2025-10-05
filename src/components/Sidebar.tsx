@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Home, Trophy, Hammer } from "lucide-react";
 import "./sidebar.css";
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 
 type SidebarProps = {
   isVisible: boolean;
@@ -9,7 +9,6 @@ type SidebarProps = {
 };
 
 function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
-
   return (
     <div className="sidebar-container">
       <motion.aside
@@ -27,16 +26,6 @@ function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
             Integrated RPA + CRISPR-Cas12 Assay Designer
           </small>
         </div>
-
-        <nav className="side-nav">
-          <div className="side-group">
-            <span className="side-heading">Designs</span>
-          </div>
-          <div className="side-divider" />
-          <div className="side-group">
-            <span className="side-heading">Rankings</span>
-          </div>
-        </nav>
 
         {SidebarIcons()}
         {isVisible && (
@@ -61,19 +50,20 @@ function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
 
 export default Sidebar;
 
-
-
 function SidebarIcons() {
   return (
-    <div className="pg-icons" >
+    <div className="pg-icons">
       <NavLink to="/" className="pageLink">
-        <Home className="pageIcon"  size={20} />
+        <Home className="pageIcon" size={20} />
+        <span className="nav-text">Home</span>
       </NavLink>
       <NavLink to="/assay" className="pageLink">
         <Hammer className="pageIcon" size={20} />
+        <span className="nav-text">Generate Sets</span>
       </NavLink>
       <NavLink to="/rank" className="pageLink">
         <Trophy className="pageIcon" size={20} />
+        <span className="nav-text">Evaluate Sets</span>
       </NavLink>
     </div>
   );

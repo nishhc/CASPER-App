@@ -17,7 +17,7 @@
   box-shadow: inset -1px 0 0 var(--stroke);
   border-top-right-radius: 22px;
   border-bottom-right-radius: 22px;
-display: flex;
+  display: flex;
   flex-direction: column;
 }
 
@@ -49,35 +49,40 @@ display: flex;
 }
 
 .pg-icons {
-  margin-top: auto;
   display: flex;
   justify-content: space-around;
   color: #6b7280;
+  flex-direction: column;
+  margin-top: auto;
+  margin-bottom: 14px;
+  text-decoration: none;
   gap: 20px;
   width: auto;
 }
 
 .pageIcon {
-    cursor: pointer;
-    padding : 8px 12px 4px;
-    width: 36px;
-    border-radius: 360px;
+  position: relative;
+  top: 4px;
+  cursor: pointer;
+  width: 36px;
+  border-radius: 360px;
 }
 
 .pageLink {
-    color: #858585;
-    border: 2px solid #b1b1b1;
-    border-radius: 360px;
+  text-decoration: none;
+  color: #858585;
+  border: 2px solid #b1b1b1;
+  border-radius: 360px;
+  padding: 12px;
 }
 
 .pageLink.active {
-  background-color: #000000; 
+  background-color: #000000;
   color: white;
-    border: 2px solid #FFFFFF;
-  border-radius: 360px;/* A darker color for the active icon */
+  border: 2px solid #ffffff;
+  border-radius: 360px; /* A darker color for the active icon */
 }
 
-.pageLink:active
-{
-scale: 0.95;
+.pageLink:active {
+  scale: 0.95;
 }
