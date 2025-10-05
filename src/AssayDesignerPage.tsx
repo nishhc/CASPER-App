@@ -35,7 +35,7 @@ export default function AssayDesignerPage() {
         el: vantaRef.current,
         THREE,
   mouseControls: false,
-  minHeight: 200.00,
+  minHeight: 1000.00,
   minWidth: 200.00,
   scale: 1,
   scaleMobile: 1.00,
@@ -55,7 +55,7 @@ export default function AssayDesignerPage() {
   return (
     <div className="assay-layout" ref={vantaRef}>
       <Sidebar isVisible={isSidebarVisible} setIsVisible={setIsSidebarVisible}/>
-      <main className="assay-main">
+      <main className="assay-main" style={{ marginLeft: isSidebarVisible ? "330px" : "0" }}>
         <h1 className="assay-title">ASSAY DESIGNER</h1>
         <AssayDesignerCard onRequestSucceed={handleSuccessfulRequest} onDataReceived={handleDataReceived} onLiveReceived={handleLiveReceived}/>
         <OutputCard isVisible={isGenerated} isSidebarVisible={isSidebarVisible} data={assayData} liveStream={liveStream}/>
@@ -78,7 +78,6 @@ function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
         initial={{ x: -350 }}
         animate={{ x: isVisible ? 0 : -350 }} 
         transition={{ duration: 0.1, ease: "easeInOut" }}
-        style={{position: isVisible ? 'sticky' : 'absolute'}}
       >
         <div className="brand">
           <div className="brand-row">
@@ -159,7 +158,7 @@ const handleGenerate = async () => {
     max_crrna_length: Number(crrnaMax) <= 0 ? Number(24) : Number(crrnaMax),
     min_gc_content: Number(gcMin) <=  0 ? Number(30) : Number(gcMin),
     max_gc_content: Number(gcMax) >= 100 || Number(gcMax) <= 0 ? Number(70) : Number(gcMax),
-    num_sets: Number(numSets) <= 0 ? Number(10) : Number(numSets),
+    num_sets: Number(numSets) <= 0 ? Number(10) : (Number(numSets) >= 1000 ? 1000 : Number(numSets)),
     generation: true,
   };
 
@@ -360,9 +359,11 @@ const handleGenerate = async () => {
 
       {/* Footer controls */}
       <div className="footer-controls">
+                <span style={{marginTop: "12px"}}>Number of Sets (Max 1000): </span>
+
         <input
           className="sets-input"
-          placeholder="Number of Sets"
+          placeholder="10"
           value={numSets}
           onChange={(e) => setNumSets(e.target.value)}
           type="number"

@@ -16,14 +16,18 @@
 }
 
 .sidebar-container {
-  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;         
   height: 100vh;
-  position: relative;
   z-index: 10;
+  overflow-y: hidden;
 }
 
 .assay-sidebar {
   min-width: 300px;
+  width: 300px;
+  height: 96vh;
   padding: 20px 18px;
   border-right: 1px solid var(--stroke);
   background: #fff;
@@ -144,7 +148,7 @@
 
 /* Card */
 .assay-card {
-  min-width: 90%;
+  min-width: 80%;
   background: #fff;
   border: 1px solid var(--stroke);
   border-radius: var(--radius);
@@ -263,6 +267,8 @@
   padding: 14px 14px;
   outline: none;
 
+    resize: vertical;
+
 }
 
 .target-input::placeholder {
@@ -303,8 +309,6 @@
 
 }
 
-
-
 /* Footer controls */
 .footer-controls {
   display: flex;
@@ -312,16 +316,22 @@
   justify-content: flex-end;
   margin-top: 24px;
 }
+
 .sets-input {
-  width: 220px;
+  width: 40px;
   height: 44px;
   border-radius: 12px;
   border: 1px solid #ddd;
   background: #f3f4f6;
-  color: #9ca3af;
+  color: #000000;
   padding: 0 14px;
   outline: none;
 }
+
+.sets-input::placeholder {
+  color: #969696;
+}
+
 .generate-btn {
   height: 44px;
   min-width: 140px;
