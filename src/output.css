@@ -7,3 +7,22 @@
     padding-inline:22px clamp(16px,3vw,28px);
     height: 400px;
 }
+
+.data-stream {
+    height: 300px;
+    background-color: rgb(246, 246, 246);
+    color: grey;
+    padding-inline: 15px;
+    font-family: monospace;
+    border:1px solid var(--stroke);
+    border-radius:var(--radius);
+}
+
+.live-stream-text {
+  white-space: pre-wrap;     
+  overflow-wrap: break-word; 
+  word-break: break-all;     
+  font-family: monospace;  
+  text-align: left;
+}
+

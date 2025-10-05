@@ -8,19 +8,25 @@ import * as THREE from "three";
 import { motion } from "framer-motion";
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
-
 export default function AssayDesignerPage() {
   const [isGenerated, setIsGenerated] = useState(false);
   const vantaRef = useRef<HTMLDivElement>(null);
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-
+  const [liveStream, setLiveStream] = useState<string>("");
   const [assayData, setAssayData] = useState<any[]>([]);
 
   const handleDataReceived = (data: any[]) => {
     setAssayData(data);
+  };
+
+  const handleSuccessfulRequest = () => {
     setIsGenerated(true);
   };
+  
+  const handleLiveReceived = (stream: string) => {
+    setLiveStream(stream);
+  }
 
   useEffect(() => {
     if (!vantaEffect) {
@@ -50,8 +56,8 @@ export default function AssayDesignerPage() {
       <Sidebar isVisible={isSidebarVisible} setIsVisible={setIsSidebarVisible}/>
       <main className="assay-main">
         <h1 className="assay-title">ASSAY DESIGNER</h1>
-        <AssayDesignerCard onDataReceived={handleDataReceived} />
-        <OutputCard isVisible={isGenerated} isSidebarVisible={isSidebarVisible} data={assayData}/>
+        <AssayDesignerCard onRequestSucceed={handleSuccessfulRequest} onDataReceived={handleDataReceived} onLiveReceived={handleLiveReceived}/>
+        <OutputCard isVisible={isGenerated} isSidebarVisible={isSidebarVisible} data={assayData} liveStream={liveStream}/>
       </main>
     </div>
   );
@@ -117,9 +123,11 @@ function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
 
 type AssayDesignerCardProps = {
   onDataReceived: (data: any[]) => void;
+  onRequestSucceed: () => void;
+  onLiveReceived: (data: string) => void;
 };
 
-function AssayDesignerCard({ onDataReceived }:AssayDesignerCardProps) {
+function AssayDesignerCard({ onDataReceived, onRequestSucceed, onLiveReceived }:AssayDesignerCardProps) {
   const [primerMin, setPrimerMin] = useState<string>("");
   const [primerMax, setPrimerMax] = useState<string>("");
 
@@ -135,9 +143,10 @@ function AssayDesignerCard({ onDataReceived }:AssayDesignerCardProps) {
   const [targets, setTargets] = useState<string>("");
   const [numSets, setNumSets] = useState<string>("");
 
-  const handleGenerate = async () => {
-
-    const config = {
+const handleGenerate = async () => {
+  var updates = ""
+  onRequestSucceed();
+  const config = {
     min_primer_length: Number(primerMin),
     max_primer_length: Number(primerMax),
     min_amplicon_length: Number(ampMin),
@@ -163,14 +172,42 @@ function AssayDesignerCard({ onDataReceived }:AssayDesignerCardProps) {
       method: "POST",
       body: formData,
     });
-
+    
     if (!res.ok) throw new Error("Backend error: " + res.status);
 
-    const responseData = await res.json();
-      console.log(responseData.jsonData)
-      onDataReceived(responseData.jsonData);
-      console.log(responseData.csvData) 
-      downloadCSV(responseData.csvData);
+    if (!res.body) throw new Error("Response has no body");
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.trim() === "") continue;
+        try {
+          const update = JSON.parse(line);
+          
+          console.log("Status:", update.status);
+          updates += update.status + "\n"
+          onLiveReceived(updates);
+
+          if (update.status === "complete" && update.data) {
+            console.log("Received final data:", update.data.jsonData);
+            onDataReceived(update.data.jsonData);
+            downloadCSV(update.data.csvData);
+          }
+        } catch (e) {
+          console.error("Error parsing streamed JSON line:", e, "Line:", line);
+        }
+      }
+    }
   } catch (err) {
     console.error("Error generating assay:", err);
   }
@@ -308,9 +345,10 @@ type OutputCardProps = {
   isVisible: boolean
   isSidebarVisible: boolean;
   data: any[];
+  liveStream: string;
 };
 
-function OutputCard({ isVisible, isSidebarVisible, data }: OutputCardProps) {
+function OutputCard({ isVisible, isSidebarVisible, data, liveStream }: OutputCardProps) {
   const [resizeKey, setResizeKey] = useState(0);
 
   useEffect(() => {
@@ -328,8 +366,19 @@ function OutputCard({ isVisible, isSidebarVisible, data }: OutputCardProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, [isSidebarVisible]); 
 
-  if (!isVisible || !data || data.length === 0) {
+  if (!isVisible) {
     return null;
+  }
+
+  console.log(liveStream);
+  // ctrl f live
+  if (data.length === 0) {
+    return ( (<section className="output-card">
+      <h2 className="output-title">Output</h2>
+      <div className="data-stream"> 
+        <pre className="live-stream-text">{liveStream}</pre>
+      </div>
+    </section>) );
   }
   
   const columns: GridColDef[] = [
