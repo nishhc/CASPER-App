@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 // @ts-ignore
 import FOG from "vanta/dist/vanta.fog.min";

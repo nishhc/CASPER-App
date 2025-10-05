@@ -1,15 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./assay.css";
+import "./output.css";
 // @ts-ignore
 import NET from "vanta/dist/vanta.net.min";
 import * as THREE from "three";
 import { motion } from "framer-motion";
+import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
 
 export default function AssayDesignerPage() {
+  const [isGenerated, setIsGenerated] = useState(false);
   const vantaRef = useRef<HTMLDivElement>(null);
   const [vantaEffect, setVantaEffect] = useState<any>(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
+  const [assayData, setAssayData] = useState<any[]>([]);
+
+  const handleDataReceived = (data: any[]) => {
+    setAssayData(data);
+    setIsGenerated(true);
+  };
 
   useEffect(() => {
     if (!vantaEffect) {
@@ -36,17 +47,22 @@ export default function AssayDesignerPage() {
 
   return (
     <div className="assay-layout" ref={vantaRef}>
-      <Sidebar />
+      <Sidebar isVisible={isSidebarVisible} setIsVisible={setIsSidebarVisible}/>
       <main className="assay-main">
         <h1 className="assay-title">ASSAY DESIGNER</h1>
-        <AssayDesignerCard />
+        <AssayDesignerCard onDataReceived={handleDataReceived} />
+        <OutputCard isVisible={isGenerated} isSidebarVisible={isSidebarVisible} data={assayData}/>
       </main>
     </div>
   );
 }
 
-function Sidebar() {
-  const [isVisible, setIsVisible] = useState(false);
+type SidebarProps = {
+  isVisible: boolean;
+  setIsVisible: (visible: boolean) => void;
+};
+
+function Sidebar({ isVisible, setIsVisible }: SidebarProps) {
 
   return (
     <div className="sidebar-container">
@@ -99,8 +115,11 @@ function Sidebar() {
   );
 }
 
+type AssayDesignerCardProps = {
+  onDataReceived: (data: any[]) => void;
+};
 
-function AssayDesignerCard() {
+function AssayDesignerCard({ onDataReceived }:AssayDesignerCardProps) {
   const [primerMin, setPrimerMin] = useState<string>("");
   const [primerMax, setPrimerMax] = useState<string>("");
 
@@ -114,7 +133,6 @@ function AssayDesignerCard() {
   const [gcMax, setGcMax] = useState<string>("");
 
   const [targets, setTargets] = useState<string>("");
-  const [background, setBackground] = useState<string>("");
   const [numSets, setNumSets] = useState<string>("");
 
   const handleGenerate = async () => {
@@ -140,11 +158,6 @@ function AssayDesignerCard() {
     formData.append("target_fasta", fastaBlob, "input.fasta");
   }
 
-  if (background) {
-    const csvBlob = new Blob([background], { type: "text/plain" });
-    formData.append("input_csv", csvBlob, "input.csv");
-  }
-
   try {
     const res = await fetch("http://localhost:8000/process", {
       method: "POST",
@@ -153,16 +166,11 @@ function AssayDesignerCard() {
 
     if (!res.ok) throw new Error("Backend error: " + res.status);
 
-    const blob = await res.blob();
-
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "ranked.csv";
-    a.click();
-    window.URL.revokeObjectURL(url);
-
-    console.log("Download started");
+    const responseData = await res.json();
+      console.log(responseData.jsonData)
+      onDataReceived(responseData.jsonData);
+      console.log(responseData.csvData) 
+      downloadCSV(responseData.csvData);
   } catch (err) {
     console.error("Error generating assay:", err);
   }
@@ -278,25 +286,6 @@ function AssayDesignerCard() {
         </button>
       </div>
 
-      {/* NEW: Genome / Background Sequence maybe delte later */}
-      <div className="target-row">
-        <input
-          className="target-input"
-          placeholder="Paste genome/background sequence (optional)…"
-          value={background}
-          onChange={(e) => setBackground(e.target.value)}
-        />
-        <button
-          className="icon-btn"
-          aria-label="Upload background"
-          onClick={() => {
-            /* file picker later */
-          }}
-        >
-          <UploadIcon />
-        </button>
-      </div>
-
       {/* Footer controls */}
       <div className="footer-controls">
         <input
@@ -315,7 +304,87 @@ function AssayDesignerCard() {
   );
 }
 
-/* --------- Small building blocks --------- */
+type OutputCardProps = {
+  isVisible: boolean
+  isSidebarVisible: boolean;
+  data: any[];
+};
+
+function OutputCard({ isVisible, isSidebarVisible, data }: OutputCardProps) {
+  const [resizeKey, setResizeKey] = useState(0);
+
+  useEffect(() => {
+    let timeoutId: number;
+    
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setResizeKey(prevKey => prevKey + 1);
+      }, 200); 
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isSidebarVisible]); 
+
+  if (!isVisible || !data || data.length === 0) {
+    return null;
+  }
+  
+  const columns: GridColDef[] = [
+    { field: 'rank', headerName: 'Rank', width: 80 },
+    { field: 'forward_primer', headerName: 'Forward Primer', flex: 1 },
+    { field: 'backward_primer', headerName: 'Backward Primer', flex: 1 },
+    { field: 'amplicon', headerName: 'Amplicon', flex: 1 },
+    { field: 'crrna', headerName: 'crRNA', flex: 1 },
+  ];
+
+  const rows = data.map((item, index) => ({
+    id: index,
+    rank: index + 1,
+    forward_primer: item.forward_primer,
+    backward_primer: item.backward_primer,
+    amplicon: item.amplicon,
+    crrna: item.crrna,
+  }));
+
+  return (
+    <section className="output-card">
+      <h2 className="output-title">Output</h2>
+      <div key={resizeKey} style={{ height: "80%", width: '100%' }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          disableColumnResize={true}
+          pageSizeOptions={[4, 10, 20]}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 4, page: 0 },
+            },
+          }}
+        />
+      </div>
+    </section>
+  );
+}
+
+function downloadCSV(csvString: string, fileName: string = "ranked.csv") {
+  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName); 
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  window.URL.revokeObjectURL(url);
+}
+
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 function FieldPair(props: {
